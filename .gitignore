@@ -248,3 +248,4 @@ Thumbs.db
 test_pdf_loader.py
 test_text_splitter.py
 test_embeddings.py
+test_vector_store.py
