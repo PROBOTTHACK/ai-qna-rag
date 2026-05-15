@@ -245,3 +245,5 @@ data/generated_papers/
 # OS files
 .DS_Store
 Thumbs.db
+test_pdf_loader.py
+test_text_splitter.py
