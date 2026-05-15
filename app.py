@@ -1,15 +1,16 @@
 """
-Main Streamlit application file.
+Main Streamlit application.
 """
 
 import streamlit as st
 
 from config.settings import Settings
+from ui.sidebar import render_sidebar
 
 
 def initialize_app():
     """
-    Configure Streamlit page settings.
+    Configure Streamlit app.
     """
 
     st.set_page_config(
@@ -20,64 +21,36 @@ def initialize_app():
 
 
 def main():
-    """
-    Main application function.
-    """
 
     initialize_app()
-
-    # ==============================
-    # APP HEADER
-    # ==============================
-
-    st.title(Settings.APP_TITLE)
-
-    st.markdown(Settings.APP_DESCRIPTION)
-
-    st.divider()
 
     # ==============================
     # SIDEBAR
     # ==============================
 
-    with st.sidebar:
-        st.header("⚙️ Configuration")
-
-        st.info(
-            f"""
-            Model: {Settings.OLLAMA_MODEL}
-
-            Embeddings:
-            {Settings.EMBEDDING_MODEL}
-            """
-        )
+    settings = render_sidebar()
 
     # ==============================
-    # MAIN CONTENT
+    # MAIN PAGE
     # ==============================
 
-    st.subheader("📂 Upload PDFs")
-
-    uploaded_files = st.file_uploader(
-        "Upload study materials",
-        type=["pdf"],
-        accept_multiple_files=True
+    st.title(
+        Settings.APP_TITLE
     )
 
-    if uploaded_files:
-        st.success(
-            f"{len(uploaded_files)} file(s) uploaded successfully."
-        )
-
-    st.divider()
-
-    st.subheader("📝 Question Paper Generator")
-
-    st.info(
-        "Generation pipeline will be implemented "
-        "in the next steps."
+    st.write(
+        Settings.APP_DESCRIPTION
     )
+
+    st.markdown("---")
+
+    st.subheader(
+        "Current Settings"
+    )
+
+    st.json(settings)
 
 
 if __name__ == "__main__":
+
     main()
