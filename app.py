@@ -29,7 +29,19 @@ from modules.ollama_client import (
 from modules.question_generator import (
     QuestionPaperGenerator
 )
+from modules.formatter import (
+    Formatter
+)
+from modules.pdf_exporter import (
+    PDFExporter
+)
 
+from utils.validators import (
+    Validators
+)
+
+from modules.formatter import Formatter
+from modules.pdf_exporter import PDFExporter
 
 def initialize_app():
     """
@@ -85,6 +97,21 @@ def main():
     """
     Main application function.
     """
+    # ==============================
+    # SESSION STATE
+    # ==============================
+
+    if "formatted_questions" not in st.session_state:
+        st.session_state.formatted_questions = None
+
+    if "formatted_answers" not in st.session_state:
+        st.session_state.formatted_answers = None
+
+    if "question_pdf_path" not in st.session_state:
+        st.session_state.question_pdf_path = None
+
+    if "answer_pdf_path" not in st.session_state:
+        st.session_state.answer_pdf_path = None
 
     initialize_app()
 
@@ -134,7 +161,7 @@ def main():
         # VALIDATION
         # ==========================
 
-        if not uploaded_files:
+        if not Validators.validate_uploaded_files(uploaded_files):
 
             st.error(
                 "Please upload PDF files."
@@ -142,13 +169,30 @@ def main():
 
             return
 
-        if not topic:
+        if not Validators.validate_topic(topic):
 
             st.error(
                 "Please enter a topic."
             )
 
             return
+        # ==========================
+        # VALIDATE EACH PDF
+        # ==========================
+
+        for file in uploaded_files:
+
+            is_valid, message = (
+                Validators.validate_pdf_file(
+                    file
+                )
+            )
+
+            if not is_valid:
+
+                st.error(message)
+
+                return
 
         try:
 
@@ -303,21 +347,83 @@ def main():
                 )
             )
 
+           
+            # ==========================
+            # FORMAT OUTPUTS
+            # ==========================
+
+            formatter = Formatter()
+
+            st.session_state.formatted_questions = (
+                formatter.format_question_paper(
+                    questions
+                )
+            )
+
+            st.session_state.formatted_answers = (
+                formatter.format_answer_key(
+                    answers
+                )
+            )
+
+
+            # ========================== 
+            # EXPORT PDFs
+            # ==========================
+
+            exporter = PDFExporter()
+
+            st.session_state.question_pdf_path = (
+                exporter.export_question_paper(
+                    st.session_state.formatted_questions
+                )
+            )
+
+            st.session_state.answer_pdf_path = (
+                exporter.export_answer_key(
+                    st.session_state.formatted_answers
+                )
+            )
+
             # ==========================
             # DISPLAY OUTPUTS
             # ==========================
 
-            st.success(
-                "Generation completed."
-            )
-
             render_question_preview(
-                questions
+                st.session_state.formatted_questions
             )
 
             render_answer_preview(
-                answers
+                st.session_state.formatted_answers
             )
+
+            # ==========================
+            # DOWNLOAD BUTTONS
+            # ==========================
+
+            st.markdown("---")
+
+            st.subheader(
+                "⬇️ Download PDFs"
+            )
+
+            with open(st.session_state.question_pdf_path, "rb") as file:
+
+                st.download_button(
+                    label="📘 Download Question Paper",
+                    data=file,
+                    file_name="question_paper.pdf",
+                    mime="application/pdf"
+                )
+
+            with open(st.session_state.answer_pdf_path, "rb") as file:
+
+                st.download_button(
+                    label="📗 Download Answer Key",
+                    data=file,
+                    file_name="answer_key.pdf",
+                    mime="application/pdf"
+                )
 
         except Exception as error:
 

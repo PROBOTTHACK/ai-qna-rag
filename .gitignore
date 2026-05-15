@@ -245,6 +245,8 @@ data/generated_papers/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Test files
 test_pdf_loader.py
 test_text_splitter.py
 test_embeddings.py
@@ -253,3 +255,4 @@ test_retriever.py
 test_ollama.py
 test_question_generator.py
 test_pdf_exporter.py
+test_formatter.py

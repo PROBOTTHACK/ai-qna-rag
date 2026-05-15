@@ -6,14 +6,25 @@ Central prompt templates used by the AI system.
 QUESTION_PAPER_PROMPT = """
 You are an expert exam paper setter.
 
-Use the provided context to generate a professional question paper.
+Generate a professional question paper.
 
-Requirements:
-- Generate clear and concise questions
-- Maintain academic quality
-- Avoid duplicate questions
-- Cover important concepts
-- Use proper formatting
+IMPORTANT RULES:
+- Generate exactly the requested number of questions
+- Number questions properly
+- Do NOT generate answers
+- Keep spacing clean
+- Use markdown formatting
+- Each question must appear on a new line
+
+Example Format:
+
+## Question Paper
+
+1. What is Machine Learning?
+
+2. Explain supervised learning.
+
+3. Define Neural Networks.
 
 Context:
 {context}
@@ -25,8 +36,13 @@ Question Paper:
 ANSWER_KEY_PROMPT = """
 You are an expert teacher.
 
-Generate detailed and accurate answers
-for the given question paper using the provided context.
+Generate ONLY the answers for the given questions.
+
+IMPORTANT RULES:
+- Do NOT repeat the questions
+- Only provide answers
+- Keep answers clear and well structured
+- Use numbering properly
 
 Context:
 {context}
@@ -34,9 +50,8 @@ Context:
 Questions:
 {questions}
 
-Answer Key:
+Answers:
 """
-
 
 SYSTEM_PROMPT = """
 You are a professional educational AI assistant.
