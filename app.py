@@ -5,7 +5,9 @@ Main Streamlit application.
 import streamlit as st
 
 from config.settings import Settings
+
 from ui.sidebar import render_sidebar
+from ui.forms import render_generation_form
 
 
 def initialize_app():
@@ -21,6 +23,9 @@ def initialize_app():
 
 
 def main():
+    """
+    Main application function.
+    """
 
     initialize_app()
 
@@ -44,11 +49,43 @@ def main():
 
     st.markdown("---")
 
-    st.subheader(
-        "Current Settings"
+    # ==============================
+    # RENDER FORM
+    # ==============================
+
+    form_data = (
+        render_generation_form()
     )
 
-    st.json(settings)
+    # ==============================
+    # DISPLAY FORM DATA
+    # ==============================
+
+    if form_data["generate_button"]:
+
+        st.success(
+            "Generation request received."
+        )
+
+        st.write(
+            "### Submitted Information"
+        )
+
+        st.json({
+            "topic": form_data["topic"],
+            "uploaded_files": (
+                len(
+                    form_data[
+                        "uploaded_files"
+                    ]
+                )
+                if form_data[
+                    "uploaded_files"
+                ]
+                else 0
+            ),
+            "settings": settings
+        })
 
 
 if __name__ == "__main__":
