@@ -1,48 +1,157 @@
-# 📝 AI Question Paper Generator
+# AI Question Paper Generator
 
-Generate exam questions from any PDF using Claude AI — built with Streamlit.
+An AI-powered Question Paper and Answer Key Generator built using:
 
-## Project Structure
+- Streamlit
+- LangChain
+- Ollama
+- Mistral
+- FAISS
+- HuggingFace Embeddings
+- ReportLab
 
+The application runs completely locally using Ollama.
+
+---
+
+# Features
+
+- Upload one or multiple PDFs
+- Extract text from PDFs
+- Chunk large documents
+- Generate embeddings
+- Store vectors using FAISS
+- Retrieve relevant context using RAG
+- Generate:
+  - Question Papers
+  - Answer Keys
+- Preview generated content
+- Export as PDF
+- Fully offline AI pipeline
+
+---
+
+# Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| Streamlit | Frontend UI |
+| LangChain | AI orchestration |
+| Ollama | Local LLM runtime |
+| Mistral | Language model |
+| FAISS | Vector database |
+| HuggingFace Embeddings | Text embeddings |
+| ReportLab | PDF generation |
+| PyPDF | PDF text extraction |
+
+---
+
+# Installation
+
+## 1. Clone Repository
+
+```bash
+git clone <your-repo-url>
+cd ai-question-paper-generator
 ```
-qpgen/
-├── app.py                      # Main Streamlit app (entry point)
-├── modules/
-│   ├── __init__.py
-│   ├── pdf_loader.py           # PDF text extraction logic
-│   └── question_generator.py  # Claude API / LLM logic
-├── .env.example                # Template for your API key
-├── requirements.txt
-└── README.md
+
+---
+
+## 2. Create Virtual Environment
+
+### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
 ```
 
-## Setup
+### Linux/Mac
 
-### 1. Install dependencies
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+## 3. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Set your API key
+---
+
+# Ollama Setup
+
+## Install Ollama
+
+Download from:
+
+https://ollama.com
+
+---
+
+## Pull Mistral Model
+
 ```bash
-cp .env.example .env
-# Edit .env and add your Anthropic API key
+ollama pull mistral
 ```
 
-### 3. Run the app
+---
+
+## Run Ollama
+
+```bash
+ollama serve
+```
+
+---
+
+# Running the Application
+
 ```bash
 streamlit run app.py
 ```
 
-## How It Works
+---
 
-1. **Upload PDF** — pdfplumber extracts all text page by page
-2. **Set Parameters** — choose total marks and number of questions
-3. **Generate** — Claude reads the content and crafts a structured question paper
-4. **Download** — save the paper as a `.txt` file
+# Project Structure
 
-## Notes
+```txt
+ai-question-paper-generator/
+│
+├── app.py
+├── requirements.txt
+├── README.md
+├── .env.example
+├── .gitignore
+│
+├── config/
+├── modules/
+├── ui/
+├── data/
+├── vectorstore/
+├── templates/
+└── utils/
+```
 
-- Works best with text-based PDFs (not scanned images)
-- Minimum ~50 words of content required in the PDF
-- API key is loaded from `.env` using `python-dotenv`
+---
+
+# Future Improvements
+
+- Multiple question difficulty levels
+- Bloom's Taxonomy support
+- Subject-specific templates
+- MCQ generation
+- Auto-marking scheme
+- Multi-model support
+- API deployment
+- Docker support
+
+---
+
+# License
+
+MIT License

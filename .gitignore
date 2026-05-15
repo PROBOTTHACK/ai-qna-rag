@@ -218,3 +218,30 @@ __marimo__/
 .streamlit/secrets.toml
 
 .vscode/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env
+
+# Streamlit
+.streamlit/
+
+# Vector database
+vectorstore/
+
+# Uploaded files
+data/uploaded_pdfs/
+data/generated_papers/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
