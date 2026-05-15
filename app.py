@@ -39,6 +39,10 @@ from modules.pdf_exporter import (
 from utils.validators import (
     Validators
 )
+from utils.cache import (
+    load_embedding_model,
+    load_ollama_client
+)
 
 from modules.formatter import Formatter
 from modules.pdf_exporter import PDFExporter
@@ -256,13 +260,12 @@ def main():
                 "Loading embeddings..."
             )
 
-            embedding_service = (
-                EmbeddingModel()
-            )
+            # embedding_service = (
+            #     EmbeddingModel()
+            # )
 
             embedding_model = (
-                embedding_service
-                .get_embeddings()
+                load_embedding_model()
             )
 
             # ==========================
@@ -300,7 +303,7 @@ def main():
             )
 
             ollama_client = (
-                OllamaClient()
+                load_ollama_client()
             )
 
             # ==========================
