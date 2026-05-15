@@ -8,3 +8,7 @@ sentence-transformers
 python-dotenv
 reportlab
 pypdf
+langchain-huggingface
+langchain-text-splitters
+torch
+torchvision
