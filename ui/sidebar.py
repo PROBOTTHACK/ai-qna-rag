@@ -62,6 +62,39 @@ def render_sidebar():
         )
     )
 
+    question_type = (
+        st.sidebar.selectbox(
+            "Question Type",
+            [
+                "MCQ",
+                "Short Answer",
+                "Long Answer"
+            ]
+        )
+    )
+
+    difficulty = (
+        st.sidebar.selectbox(
+            "Difficulty Level",
+            [
+                "Easy",
+                "Medium",
+                "Hard"
+            ]
+        )
+    )
+
+    marks = (
+        st.sidebar.selectbox(
+            "Marks Per Question",
+            [
+                2,
+                5,
+                10
+            ]
+        )
+    )
+
     retrieval_chunks = (
         st.sidebar.slider(
             "Retrieved Chunks",
@@ -71,13 +104,10 @@ def render_sidebar():
         )
     )
 
-    st.sidebar.markdown("---")
-
-    st.sidebar.success(
-        "Local AI System Ready"
-    )
-
     return {
         "num_questions": num_questions,
+        "question_type": question_type,
+        "difficulty": difficulty,
+        "marks": marks,
         "retrieval_chunks": retrieval_chunks
     }

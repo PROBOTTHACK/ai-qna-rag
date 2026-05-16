@@ -324,9 +324,23 @@ def main():
             )
 
             questions = (
-                generator
-                .generate_question_paper(
+                generator.generate_question_paper(
                     topic=topic,
+                    question_type=(
+                        settings[
+                            "question_type"
+                        ]
+                    ),
+                    difficulty=(
+                        settings[
+                            "difficulty"
+                        ]
+                    ),
+                    marks=(
+                        settings[
+                            "marks"
+                        ]
+                    ),
                     num_questions=(
                         settings[
                             "num_questions"

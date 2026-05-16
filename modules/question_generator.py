@@ -41,6 +41,9 @@ class QuestionPaperGenerator:
     def generate_question_paper(
         self,
         topic: str,
+        question_type: str,
+        difficulty: str,
+        marks: int,
         num_questions: int = 5
     ) -> str:
         """
@@ -49,6 +52,15 @@ class QuestionPaperGenerator:
         Args:
             topic (str):
                 Topic/query.
+
+            question_type (str):
+                Type of questions.
+
+            difficulty (str):
+                Difficulty level.
+
+            marks (int):
+                Marks per question.
 
             num_questions (int):
                 Number of questions.
@@ -83,11 +95,28 @@ class QuestionPaperGenerator:
 
             prompt += f"""
 
-Generate exactly {num_questions} questions.
+            Generate exactly {num_questions} questions.
 
-Topic:
-{topic}
-"""
+            Question Type:
+            {question_type}
+
+            Difficulty Level:
+            {difficulty}
+
+            Marks Per Question:
+            {marks}
+
+            Topic:
+            {topic}
+
+            IMPORTANT RULES:
+
+            - Follow the selected difficulty strictly
+            - Generate ONLY the requested question type
+            - Do NOT generate answers
+            - Maintain professional formatting
+            - Each question must appear on a new line
+            """
 
             # ==============================
             # GENERATE RESPONSE
