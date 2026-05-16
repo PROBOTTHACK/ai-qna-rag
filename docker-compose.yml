@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+
+  # ==========================
+  # STREAMLIT APPLICATION
+  # ==========================
+
+  app:
+
+    build: .
+
+    container_name: ai-question-generator
+
+    ports:
+      - "8501:8501"
+
+    volumes:
+      - .:/app
+
+    depends_on:
+      - ollama
+
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+  # ==========================
+  # OLLAMA SERVICE
+  # ==========================
+
+  ollama:
+
+    image: ollama/ollama
+
+    container_name: ollama
+
+    ports:
+      - "11434:11434"
+
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+
+  ollama_data:

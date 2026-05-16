@@ -7,6 +7,8 @@ Responsible for:
 - Generating AI responses
 """
 
+import os
+
 from langchain_ollama import ChatOllama
 
 from config.settings import Settings
@@ -39,7 +41,10 @@ class OllamaClient:
 
             self.llm = ChatOllama(
                 model=Settings.OLLAMA_MODEL,
-                temperature=Settings.TEMPERATURE
+                temperature=Settings.TEMPERATURE,
+                base_url=os.getenv(
+                    "OLLAMA_BASE_URL",
+                    "http://ollama:11434")
             )
 
             print(

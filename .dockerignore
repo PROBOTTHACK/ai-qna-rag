@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.git/
+.gitignore
+logs/
+vectorstore/
+data/uploaded_pdfs/
+data/generated_papers/
+.streamlit/
