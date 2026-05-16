@@ -17,7 +17,7 @@ from langchain_community.vectorstores import (
 )
 
 from config.settings import Settings
-
+import os
 
 class VectorStoreManager:
     """
@@ -128,7 +128,73 @@ class VectorStoreManager:
                 f"Error loading vector store: "
                 f"{error}"
             )
+    def vectorstore_exists(
+        self,
+        vectorstore_path: str
+    ) -> bool:
+        """
+        Check if vector store exists.
+        """
 
+        return os.path.exists(
+            vectorstore_path
+        )
+    def save_vector_store_to_path(
+        self,
+        vectorstore_path: str
+    ):
+        """
+        Save vector store to custom path.
+        """
+
+        try:
+
+            if self.vector_store is None:
+
+                raise ValueError(
+                    "Vector store does not exist."
+                )
+
+            self.vector_store.save_local(
+                vectorstore_path
+            )
+
+            print(
+                "Vector store saved successfully."
+            )
+
+        except Exception as error:
+
+            print(
+                f"Error saving vector store: "
+                f"{error}"
+            )
+    def load_vector_store_from_path(
+        self,
+        vectorstore_path: str
+    ):
+        """
+        Load vector store from path.
+        """
+
+        try:
+
+            self.vector_store = FAISS.load_local(
+                vectorstore_path,
+                self.embedding_model,
+                allow_dangerous_deserialization=True
+            )
+
+            print(
+                "Existing vector store loaded."
+            )
+
+        except Exception as error:
+
+            print(
+                f"Error loading vector store: "
+                f"{error}"
+            )
     def similarity_search(
         self,
         query: str,

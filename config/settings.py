@@ -20,7 +20,7 @@ class Settings:
 
     OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
     TEMPERATURE = float(os.getenv("TEMPERATURE", 0.2))
-
+    VECTORSTORE_DIR = "vectorstore"
     # ==============================
     # VECTOR DATABASE SETTINGS
     # ==============================

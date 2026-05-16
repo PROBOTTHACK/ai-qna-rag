@@ -43,6 +43,12 @@ from utils.cache import (
     load_embedding_model,
     load_ollama_client
 )
+from utils.file_hash import (
+    FileHashGenerator
+)
+from templates.exam_template import (
+    ExamTemplate
+)
 
 from modules.formatter import Formatter
 from modules.pdf_exporter import PDFExporter
@@ -269,12 +275,32 @@ def main():
             )
 
             # ==========================
-            # CREATE VECTOR STORE
+            # GENERATE PDF HASH
             # ==========================
 
-            render_generation_status(
-                "Creating vector store..."
+            combined_content = b""
+
+            for file in uploaded_files:
+
+                combined_content += (
+                    file.getvalue()
+                )
+
+            pdf_hash = (
+                FileHashGenerator
+                .generate_file_hash(
+                    combined_content
+                )
             )
+
+            vectorstore_path = os.path.join(
+                Settings.VECTORSTORE_DIR,
+                pdf_hash
+            )
+
+            # ==========================
+            # VECTOR STORE MANAGER
+            # ==========================
 
             vector_store = (
                 VectorStoreManager(
@@ -282,9 +308,39 @@ def main():
                 )
             )
 
-            vector_store.create_vector_store(
-                chunks
-            )
+            # ==========================
+            # REUSE EXISTING VECTOR DB
+            # ==========================
+
+            if vector_store.vectorstore_exists(
+                vectorstore_path
+            ):
+
+                render_generation_status(
+                    "Loading existing vector database..."
+                )
+
+                vector_store.load_vector_store_from_path(
+                    vectorstore_path
+                )
+
+            # ==========================
+            # CREATE NEW VECTOR DB
+            # ==========================
+
+            else:
+
+                render_generation_status(
+                    "Creating new vector database..."
+                )
+
+                vector_store.create_vector_store(
+                    chunks
+                )
+
+                vector_store.save_vector_store_to_path(
+                    vectorstore_path
+                )
 
             # ==========================
             # CREATE RETRIEVER
@@ -323,29 +379,68 @@ def main():
                 )
             )
 
-            questions = (
+            # ==========================
+            # GENERATE SECTION A
+            # ==========================
+
+            mcq_questions = (
                 generator.generate_question_paper(
                     topic=topic,
-                    question_type=(
-                        settings[
-                            "question_type"
-                        ]
-                    ),
+                    question_type="MCQ",
                     difficulty=(
-                        settings[
-                            "difficulty"
-                        ]
+                        settings["difficulty"]
                     ),
-                    marks=(
-                        settings[
-                            "marks"
-                        ]
+                    marks=2,
+                    num_questions=3
+                )
+            )
+
+            # ==========================
+            # GENERATE SECTION B
+            # ==========================
+
+            short_questions = (
+                generator.generate_question_paper(
+                    topic=topic,
+                    question_type="Short Answer",
+                    difficulty=(
+                        settings["difficulty"]
                     ),
-                    num_questions=(
-                        settings[
-                            "num_questions"
-                        ]
-                    )
+                    marks=5,
+                    num_questions=3
+                )
+            )
+
+            # ==========================
+            # GENERATE SECTION C
+            # ==========================
+
+            long_questions = (
+                generator.generate_question_paper(
+                    topic=topic,
+                    question_type="Long Answer",
+                    difficulty=(
+                        settings["difficulty"]
+                    ),
+                    marks=10,
+                    num_questions=2
+                )
+            )
+            # ==========================
+            # BUILD EXAM TEMPLATE
+            # ==========================
+
+            exam_template = ExamTemplate(
+                subject_name=topic,
+                exam_duration="3 Hours",
+                total_marks=41
+            )
+
+            questions = (
+                exam_template.build_complete_paper(
+                    mcq_questions=mcq_questions,
+                    short_questions=short_questions,
+                    long_questions=long_questions
                 )
             )
 
