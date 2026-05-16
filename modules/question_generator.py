@@ -95,27 +95,57 @@ class QuestionPaperGenerator:
 
             prompt += f"""
 
+            You are an expert university examination paper setter.
+
             Generate exactly {num_questions} questions.
 
-            Question Type:
-            {question_type}
-
-            Difficulty Level:
-            {difficulty}
-
-            Marks Per Question:
-            {marks}
-
-            Topic:
+            TOPIC:
             {topic}
 
-            IMPORTANT RULES:
+            QUESTION TYPE:
+            {question_type}
 
-            - Follow the selected difficulty strictly
-            - Generate ONLY the requested question type
-            - Do NOT generate answers
-            - Maintain professional formatting
-            - Each question must appear on a new line
+            DIFFICULTY:
+            {difficulty}
+
+            MARKS PER QUESTION:
+            {marks}
+
+            STRICT INSTRUCTIONS:
+
+            1. Generate ONLY questions.
+            2. Do NOT generate headings.
+            3. Do NOT generate metadata.
+            4. Do NOT generate explanations.
+            5. Do NOT generate answers.
+            6. Do NOT write:
+            - Topic
+            - Question Paper
+            - Answer Key
+            - Difficulty Level
+            7. Every question must be numbered.
+            8. Each question must appear on a separate line.
+
+            QUESTION TYPE RULES:
+
+            IF question type is MCQ:
+            - Every question MUST contain 4 options.
+            - Use format:
+
+            1. Question text
+
+            A) Option
+            B) Option
+            C) Option
+            D) Option
+
+            IF question type is Short Answer:
+            - Generate concise theoretical questions only.
+
+            IF question type is Long Answer:
+            - Generate descriptive analytical questions only.
+
+            OUTPUT ONLY RAW QUESTIONS.
             """
 
             # ==============================

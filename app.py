@@ -122,6 +122,8 @@ def main():
 
     if "answer_pdf_path" not in st.session_state:
         st.session_state.answer_pdf_path = None
+    if "generation_complete" not in st.session_state:
+        st.session_state.generation_complete = False
 
     initialize_app()
 
@@ -158,6 +160,7 @@ def main():
     # ==============================
 
     if form_data["generate_button"]:
+        st.session_state.generation_complete = False
 
         uploaded_files = (
             form_data["uploaded_files"]
@@ -380,67 +383,116 @@ def main():
             )
 
             # ==========================
-            # GENERATE SECTION A
+            # GENERATE EXAM SECTIONS
             # ==========================
 
-            mcq_questions = (
-                generator.generate_question_paper(
-                    topic=topic,
-                    question_type="MCQ",
-                    difficulty=(
-                        settings["difficulty"]
+            generated_sections = {}
+
+            sections = [
+
+                {
+                    "title": "SECTION A",
+                    "question_type": (
+                        settings["section_a_type"]
                     ),
-                    marks=2,
-                    num_questions=3
-                )
-            )
-
-            # ==========================
-            # GENERATE SECTION B
-            # ==========================
-
-            short_questions = (
-                generator.generate_question_paper(
-                    topic=topic,
-                    question_type="Short Answer",
-                    difficulty=(
-                        settings["difficulty"]
+                    "marks": (
+                        settings["section_a_marks"]
                     ),
-                    marks=5,
-                    num_questions=3
-                )
-            )
+                    "num_questions": (
+                        settings["section_a_questions"]
+                    )
+                },
 
-            # ==========================
-            # GENERATE SECTION C
-            # ==========================
-
-            long_questions = (
-                generator.generate_question_paper(
-                    topic=topic,
-                    question_type="Long Answer",
-                    difficulty=(
-                        settings["difficulty"]
+                {
+                    "title": "SECTION B",
+                    "question_type": (
+                        settings["section_b_type"]
                     ),
-                    marks=10,
-                    num_questions=2
+                    "marks": (
+                        settings["section_b_marks"]
+                    ),
+                    "num_questions": (
+                        settings["section_b_questions"]
+                    )
+                },
+
+                {
+                    "title": "SECTION C",
+                    "question_type": (
+                        settings["section_c_type"]
+                    ),
+                    "marks": (
+                        settings["section_c_marks"]
+                    ),
+                    "num_questions": (
+                        settings["section_c_questions"]
+                    )
+                }
+            ]
+
+            # ==========================
+            # GENERATE EACH SECTION
+            # ==========================
+
+            for section in sections:
+
+                render_generation_status(
+                    f"Generating {section['title']}..."
                 )
-            )
+
+                generated_questions = (
+                    generator.generate_question_paper(
+
+                        topic=topic,
+
+                        question_type=(
+                            section["question_type"]
+                        ),
+
+                        difficulty=(
+                            settings["difficulty"]
+                        ),
+
+                        marks=(
+                            section["marks"]
+                        ),
+
+                        num_questions=(
+                            section["num_questions"]
+                        )
+                    )
+                )
+
+                generated_sections[
+                    section["title"]
+                ] = {
+
+                    "questions": generated_questions,
+
+                    "marks": section["marks"]
+                }
             # ==========================
             # BUILD EXAM TEMPLATE
             # ==========================
 
             exam_template = ExamTemplate(
-                subject_name=topic,
-                exam_duration="3 Hours",
-                total_marks=41
+
+                subject_name=(
+                    settings["subject_name"]
+                ),
+
+                exam_duration=(
+                    settings["exam_duration"]
+                ),
+
+                total_marks=(
+                    settings["total_marks"]
+                )
             )
 
             questions = (
                 exam_template.build_complete_paper(
-                    mcq_questions=mcq_questions,
-                    short_questions=short_questions,
-                    long_questions=long_questions
+                    generated_sections
                 )
             )
 
@@ -496,30 +548,55 @@ def main():
                     st.session_state.formatted_answers
                 )
             )
+            
+            st.session_state.generation_complete = True
 
-            # ==========================
-            # DISPLAY OUTPUTS
-            # ==========================
+    
 
-            render_question_preview(
-                st.session_state.formatted_questions
+        except Exception as error:
+
+            st.error(
+                f"Application Error: {error}"
             )
+    # ===================================
+    # SHOW OUTPUTS ONLY AFTER GENERATION
+    # ===================================
 
-            render_answer_preview(
-                st.session_state.formatted_answers
-            )
+    if (
+        st.session_state.generation_complete
+        and
+        st.session_state.formatted_questions
+        and
+        st.session_state.formatted_answers
+    ):
+        # ==========================
+        # DISPLAY OUTPUTS
+        # ==========================
 
-            # ==========================
-            # DOWNLOAD BUTTONS
-            # ==========================
+        render_question_preview(
+            st.session_state.formatted_questions
+        )
 
-            st.markdown("---")
+        render_answer_preview(
+            st.session_state.formatted_answers
+        )
 
-            st.subheader(
-                "⬇️ Download PDFs"
-            )
+        # ==========================
+        # DOWNLOAD BUTTONS
+        # ==========================
 
-            with open(st.session_state.question_pdf_path, "rb") as file:
+        st.markdown("---")
+
+        st.subheader(
+            "⬇️ Download PDFs"
+        )
+
+        if st.session_state.question_pdf_path:
+
+            with open(
+                st.session_state.question_pdf_path,
+                "rb"
+            ) as file:
 
                 st.download_button(
                     label="📘 Download Question Paper",
@@ -528,7 +605,12 @@ def main():
                     mime="application/pdf"
                 )
 
-            with open(st.session_state.answer_pdf_path, "rb") as file:
+        if st.session_state.answer_pdf_path:
+
+            with open(
+                st.session_state.answer_pdf_path,
+                "rb"
+            ) as file:
 
                 st.download_button(
                     label="📗 Download Answer Key",
@@ -536,12 +618,6 @@ def main():
                     file_name="answer_key.pdf",
                     mime="application/pdf"
                 )
-
-        except Exception as error:
-
-            st.error(
-                f"Application Error: {error}"
-            )
 
 
 if __name__ == "__main__":

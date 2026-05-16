@@ -77,12 +77,10 @@ class ExamTemplate:
 
     def build_complete_paper(
         self,
-        mcq_questions: str = "",
-        short_questions: str = "",
-        long_questions: str = ""
+        generated_sections: dict
     ) -> str:
         """
-        Build complete exam paper.
+        Build complete exam paper dynamically.
         """
 
         paper = (
@@ -90,39 +88,20 @@ class ExamTemplate:
         )
 
         # ==========================
-        # SECTION A
+        # ADD ALL SECTIONS
         # ==========================
 
-        if mcq_questions.strip():
+        for section_title, data in (
+            generated_sections.items()
+        ):
 
             paper += self.build_section(
-                section_title="SECTION A",
-                marks=2,
-                questions=mcq_questions
-            )
 
-        # ==========================
-        # SECTION B
-        # ==========================
+                section_title=section_title,
 
-        if short_questions.strip():
+                marks=data["marks"],
 
-            paper += self.build_section(
-                section_title="SECTION B",
-                marks=5,
-                questions=short_questions
-            )
-
-        # ==========================
-        # SECTION C
-        # ==========================
-
-        if long_questions.strip():
-
-            paper += self.build_section(
-                section_title="SECTION C",
-                marks=10,
-                questions=long_questions
+                questions=data["questions"]
             )
 
         return paper

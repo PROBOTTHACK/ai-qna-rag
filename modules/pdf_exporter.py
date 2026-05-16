@@ -1,15 +1,18 @@
 """
-PDF exporter module.
-
-Responsible for:
-- Exporting question papers
-- Exporting answer keys
-- Creating professional PDFs
+Professional PDF exporter.
 """
 
 import os
 
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+
 from reportlab.lib.pagesizes import letter
+
+from reportlab.lib.styles import (
+    getSampleStyleSheet,
+    ParagraphStyle
+)
 
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -17,184 +20,222 @@ from reportlab.platypus import (
     Spacer
 )
 
-from reportlab.lib.styles import (
-    getSampleStyleSheet
-)
-
 from config.settings import Settings
 
 
 class PDFExporter:
-    """
-    Handles PDF export operations.
-    """
 
     def __init__(self):
-        """
-        Initialize PDF exporter.
-        """
-
-        self.styles = (
-            getSampleStyleSheet()
-        )
 
         os.makedirs(
             Settings.OUTPUT_DIR,
             exist_ok=True
         )
 
+        self.styles = (
+            getSampleStyleSheet()
+        )
+
+        self.title_style = ParagraphStyle(
+            name="TitleStyle",
+            parent=self.styles["Heading1"],
+            fontSize=24,
+            leading=30,
+            alignment=TA_CENTER,
+            textColor=colors.darkblue,
+            spaceAfter=30
+        )
+
+        self.heading_style = ParagraphStyle(
+            name="HeadingStyle",
+            parent=self.styles["Heading2"],
+            fontSize=18,
+            leading=24,
+            textColor=colors.darkred,
+            spaceAfter=20
+        )
+
+        self.body_style = ParagraphStyle(
+            name="BodyStyle",
+            parent=self.styles["BodyText"],
+            fontSize=12,
+            leading=22,
+            spaceAfter=10
+        )
+
+    def parse_content(
+        self,
+        content,
+        story
+    ):
+        """
+        Parse markdown-style content.
+        """
+
+        lines = content.split("\n")
+
+        for line in lines:
+
+            line = line.strip()
+
+            if not line:
+                continue
+
+            # ==========================
+            # H1 TITLE
+            # ==========================
+
+            if line.startswith("# "):
+
+                text = line[2:].strip()
+
+                story.append(
+                    Paragraph(
+                        text,
+                        self.title_style
+                    )
+                )
+
+                story.append(
+                    Spacer(1, 20)
+                )
+
+            # ==========================
+            # H2 HEADING
+            # ==========================
+
+            elif line.startswith("## "):
+
+                text = line[3:].strip()
+
+                story.append(
+                    Paragraph(
+                        text,
+                        self.heading_style
+                    )
+                )
+
+                story.append(
+                    Spacer(1, 15)
+                )
+
+            # ==========================
+            # H3 SUBHEADING
+            # ==========================
+
+            elif line.startswith("### "):
+
+                text = line[4:].strip()
+
+                subheading_style = ParagraphStyle(
+                    name="SubHeading",
+                    parent=self.body_style,
+                    fontSize=14,
+                    leading=18,
+                    spaceAfter=12,
+                    textColor=colors.darkblue
+                )
+
+                story.append(
+                    Paragraph(
+                        text,
+                        subheading_style
+                    )
+                )
+
+            # ==========================
+            # HORIZONTAL LINE
+            # ==========================
+
+            elif line == "---":
+
+                story.append(
+                    Spacer(1, 20)
+                )
+
+            # ==========================
+            # BULLET POINTS
+            # ==========================
+
+            elif line.startswith("- "):
+
+                bullet_text = (
+                    f"• {line[2:]}"
+                )
+
+                story.append(
+                    Paragraph(
+                        bullet_text,
+                        self.body_style
+                    )
+                )
+
+            # ==========================
+            # NORMAL TEXT
+            # ==========================
+
+            else:
+
+                story.append(
+                    Paragraph(
+                        line,
+                        self.body_style
+                    )
+                )
+
+                story.append(
+                    Spacer(1, 8)
+                )
+
     def export_pdf(
         self,
-        content: str,
-        filename: str,
-        title: str
-    ) -> str:
-        """
-        Export content as PDF.
+        content,
+        filename
+    ):
 
-        Args:
-            content (str):
-                PDF content.
+        pdf_path = os.path.join(
+            Settings.OUTPUT_DIR,
+            filename
+        )
 
-            filename (str):
-                Output filename.
-
-            title (str):
-                Document title.
-
-        Returns:
-            str:
-                Saved PDF path.
-        """
-
-        try:
-
-            pdf_path = os.path.join(
-                Settings.OUTPUT_DIR,
-                filename
+        document = (
+            SimpleDocTemplate(
+                pdf_path,
+                pagesize=letter,
+                rightMargin=40,
+                leftMargin=40,
+                topMargin=50,
+                bottomMargin=40
             )
+        )
 
-            # ==========================
-            # CREATE PDF DOCUMENT
-            # ==========================
+        story = []
 
-            document = (
-                SimpleDocTemplate(
-                    pdf_path,
-                    pagesize=letter
-                )
-            )
+        self.parse_content(
+            content,
+            story
+        )
 
-            story = []
+        document.build(story)
 
-            # ==========================
-            # TITLE
-            # ==========================
-
-            title_style = (
-                self.styles["Title"]
-            )
-
-            story.append(
-                Paragraph(
-                    title,
-                    title_style
-                )
-            )
-
-            story.append(
-                Spacer(1, 20)
-            )
-
-            # ==========================
-            # CONTENT
-            # ==========================
-
-            normal_style = (
-                self.styles["BodyText"]
-            )
-
-            paragraphs = (
-                content.split("\n")
-            )
-
-            for para in paragraphs:
-
-                if para.strip():
-
-                    story.append(
-                        Paragraph(
-                            para,
-                            normal_style
-                        )
-                    )
-
-                    story.append(
-                        Spacer(1, 10)
-                    )
-
-            # ==========================
-            # BUILD PDF
-            # ==========================
-
-            document.build(story)
-
-            print(
-                f"PDF exported successfully: "
-                f"{pdf_path}"
-            )
-
-            return pdf_path
-
-        except Exception as error:
-
-            print(
-                f"PDF export error: "
-                f"{error}"
-            )
-
-            return ""
+        return pdf_path
 
     def export_question_paper(
         self,
-        questions: str
-    ) -> str:
-        """
-        Export question paper PDF.
-
-        Args:
-            questions (str):
-                Generated questions.
-
-        Returns:
-            str:
-                PDF path.
-        """
+        questions
+    ):
 
         return self.export_pdf(
-            content=questions,
-            filename="question_paper.pdf",
-            title="Question Paper"
+            questions,
+            "question_paper.pdf"
         )
 
     def export_answer_key(
         self,
-        answers: str
-    ) -> str:
-        """
-        Export answer key PDF.
-
-        Args:
-            answers (str):
-                Generated answers.
-
-        Returns:
-            str:
-                PDF path.
-        """
+        answers
+    ):
 
         return self.export_pdf(
-            content=answers,
-            filename="answer_key.pdf",
-            title="Answer Key"
+            answers,
+            "answer_key.pdf"
         )
