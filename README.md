@@ -117,8 +117,7 @@ ai-question-paper-generator/
 ### 1. Clone & Install
  
 ```bash
-git clone https://github.com/your-username/ai-question-paper-generator.git
-cd ai-question-paper-generator
+git clone https://github.com/PROBOTTHACK/ai-qna-rag.git
  
 python -m venv env
 # Windows:
